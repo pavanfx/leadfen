@@ -1,0 +1,5 @@
+{
+  "name": "LeadGenius AI",
+  "description": "A modern lead management tool that parses JSON lead lists and uses Google Gemini AI to generate personalized outreach messages via SMS, Email, and WhatsApp.",
+  "requestFramePermissions": []
+}
