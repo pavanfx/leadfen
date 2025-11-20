@@ -10,6 +10,7 @@ export interface Lead {
   industry: string;
   city: string;
   country: string;
+  status?: 'sent' | 'not_sent';
 }
 
 export interface LeadData {

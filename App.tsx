@@ -52,10 +52,29 @@ const App: React.FC = () => {
   };
 
   const handleDataLoaded = (uploadedData: LeadData) => {
-    setData(uploadedData);
-    localStorage.setItem('leadGeniusData', JSON.stringify(uploadedData));
+    // Initialize status for new leads if not present
+    const leadsWithStatus = uploadedData.leads.map(lead => ({
+      ...lead,
+      status: lead.status || 'not_sent'
+    }));
+
+    const newData = { ...uploadedData, leads: leadsWithStatus };
+    setData(newData);
+    localStorage.setItem('leadGeniusData', JSON.stringify(newData));
     setHasSavedData(true);
-    setSavedCount(uploadedData.leads.length);
+    setSavedCount(newData.leads.length);
+  };
+
+  const handleLeadStatusChange = (leadId: string, newStatus: 'sent' | 'not_sent') => {
+    if (!data) return;
+
+    const updatedLeads = data.leads.map(lead =>
+      lead.id === leadId ? { ...lead, status: newStatus } : lead
+    );
+
+    const updatedData = { ...data, leads: updatedLeads };
+    setData(updatedData);
+    localStorage.setItem('leadGeniusData', JSON.stringify(updatedData));
   };
 
   const handleLoadSaved = () => {
@@ -95,10 +114,10 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center space-x-2 sm:space-x-6 text-sm font-medium text-gray-500">
             {process.env.API_KEY ? (
-               <span className="flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-[10px] sm:text-xs font-bold">
-                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                 <span>ONLINE</span>
-               </span>
+              <span className="flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-[10px] sm:text-xs font-bold">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                <span>ONLINE</span>
+              </span>
             ) : (
               <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-[10px] sm:text-xs font-bold">KEY MISSING</span>
             )}
@@ -112,7 +131,7 @@ const App: React.FC = () => {
           <div className="flex-grow flex flex-col items-center justify-start px-4 py-8 sm:py-12 animate-in fade-in duration-500">
             <div className="text-center mb-8 sm:mb-10">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
-                Mobile Lead <br className="block sm:hidden"/>
+                Mobile Lead <br className="block sm:hidden" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">Automation</span>
               </h2>
               <p className="text-base sm:text-lg text-gray-500 max-w-md mx-auto leading-relaxed px-2">
@@ -122,9 +141,9 @@ const App: React.FC = () => {
 
             <div className="w-full max-w-xl space-y-6">
               {/* User Profile Config Section */}
-              <UserConfigForm 
-                existingConfig={userConfig} 
-                onSave={handleSaveConfig} 
+              <UserConfigForm
+                existingConfig={userConfig}
+                onSave={handleSaveConfig}
               />
 
               {/* Only show upload options if config is set (or you can allow it regardless, but contextual flow is better) */}
@@ -133,7 +152,7 @@ const App: React.FC = () => {
 
                 {hasSavedData && (
                   <div className="relative group mt-6">
-                    <button 
+                    <button
                       onClick={handleLoadSaved}
                       className="w-full bg-white p-5 rounded-2xl border-2 border-indigo-100 hover:border-indigo-300 shadow-sm hover:shadow-md transition-all flex items-center justify-between group active:scale-[0.98]"
                     >
@@ -148,7 +167,7 @@ const App: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-3">
                         <span className="text-indigo-600 font-medium text-sm hidden sm:inline">Open List</span>
-                        <div 
+                        <div
                           onClick={handleClearSaved}
                           className="p-2 hover:bg-red-50 text-gray-300 hover:text-red-500 rounded-lg transition-colors"
                           title="Clear saved data"
@@ -160,15 +179,15 @@ const App: React.FC = () => {
                   </div>
                 )}
               </div>
-            
+
               {/* Demo Data Helper */}
               <div className="mt-8 p-4 bg-slate-100 rounded-xl border border-slate-200 w-full">
                 <div className="flex items-center space-x-2 mb-2">
-                   <Database className="w-4 h-4 text-slate-500" />
-                   <p className="text-xs font-bold text-slate-500 uppercase">JSON Format</p>
+                  <Database className="w-4 h-4 text-slate-500" />
+                  <p className="text-xs font-bold text-slate-500 uppercase">JSON Format</p>
                 </div>
                 <pre className="bg-white text-slate-600 p-3 rounded-lg text-[10px] sm:text-xs overflow-x-auto border border-slate-200 font-mono leading-relaxed">
-{`[
+                  {`[
   {
     "business_name": "Cafe Miami",
     "business_phone": "(555) 123-4567",
@@ -182,11 +201,12 @@ const App: React.FC = () => {
           </div>
         ) : (
           <div className="animate-in slide-in-from-bottom-4 duration-500 h-full">
-             <LeadList 
-               leads={data.leads} 
-               onBack={handleBack} 
-               userConfig={userConfig}
-             />
+            <LeadList
+              leads={data.leads}
+              onBack={handleBack}
+              userConfig={userConfig}
+              onStatusChange={handleLeadStatusChange}
+            />
           </div>
         )}
       </main>
