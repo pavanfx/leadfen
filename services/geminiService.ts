@@ -9,9 +9,10 @@ const MODEL_ID = "gemini-flash-latest";
 export const optimizeServiceDescription = async (rawServices: string): Promise<string> => {
   try {
     if (!rawServices.trim()) return "";
-    
-    const prompt = `You are an expert copywriter. 
-    Rewrite the following service description to be more professional, concise, and compelling for B2B cold outreach. 
+
+    const prompt = `You are an expert copywriter for creative freelancers. 
+    Rewrite the following video editing service description to be punchy, high-value, and attractive to business owners.
+    Focus on "retention", "growth", and "quality".
     Keep it under 2 sentences.
     
     Input: "${rawServices}"
@@ -31,25 +32,25 @@ export const optimizeServiceDescription = async (rawServices: string): Promise<s
 };
 
 export const generateOutreachMessage = async (
-  lead: Lead, 
-  type: MessageType, 
+  lead: Lead,
+  type: MessageType,
   userConfig?: UserConfig
 ): Promise<{ subject?: string; body: string }> => {
   try {
     let prompt = "";
-    
+
     // Construct sender context
-    const orgName = userConfig?.orgName || "our agency";
-    const services = userConfig?.services || "premium services";
-    
+    const orgName = userConfig?.orgName || "my video editing business";
+    const services = userConfig?.services || "high-retention video editing";
+
     // Lead context
     const leadContext = `Recipient Business: ${lead.business_name}. Industry: ${lead.industry}. City: ${lead.city}.`;
-    const senderContext = `Sender Organization: ${orgName}. Services: ${services}.`;
+    const senderContext = `Sender: Solo Video Editor (Name: ${orgName}). Services: ${services}.`;
 
     switch (type) {
       case MessageType.SMS:
         prompt = `
-        Act as a top-tier B2B sales copywriter.
+        Act as a professional solo video editor looking for clients.
         Write a single cold SMS message to ${lead.business_name}.
         
         ${senderContext}
@@ -58,10 +59,10 @@ export const generateOutreachMessage = async (
         Constraints:
         1. STRICTLY under 160 characters.
         2. No "Hi" or "Hello". Jump straight into the hook.
-        3. Use a specific "hook" related to their industry (${lead.industry}).
-        4. Briefly mention the value prop of ${services}.
-        5. End with a quick, low-friction question (e.g., "Open to a chat?").
-        6. Tone: Casual, direct, professional.
+        3. Hook: Mention their industry (${lead.industry}) and the need for better video content.
+        4. Value: Mention "high-retention editing" or "viral shorts".
+        5. End with a low-friction question (e.g., "Need help with reels?").
+        6. Tone: Creative, energetic, direct.
         
         Output only the message text.
         `;
@@ -69,7 +70,7 @@ export const generateOutreachMessage = async (
 
       case MessageType.WHATSAPP:
         prompt = `
-        Act as a B2B growth expert.
+        Act as a creative video editor.
         Write a WhatsApp message to ${lead.business_name}.
         
         ${senderContext}
@@ -77,10 +78,10 @@ export const generateOutreachMessage = async (
         
         Constraints:
         1. Short and conversational (max 3 sentences).
-        2. Start with a personalized hook (e.g., "Saw your gym in Surat...").
-        3. Mention how ${orgName} can help with ${services}.
-        4. Use exactly 1 emoji to keep it friendly but not childish.
-        5. End with a soft Call to Action.
+        2. Start with a personalized hook (e.g., "Checked out your ${lead.industry} content...").
+        3. Mention you are a *solo* editor (personal attention, better rates) offering ${services}.
+        4. Use exactly 1 emoji (🎥, 🎬, or ✨).
+        5. End with a soft Call to Action (e.g., "Can I send my portfolio?").
         
         Output only the message text.
         `;
@@ -88,18 +89,20 @@ export const generateOutreachMessage = async (
 
       case MessageType.EMAIL:
         prompt = `
-        Act as a cold email specialist.
-        Write a high-converting cold email to ${lead.business_name}.
+        Act as a freelance video editor.
+        Write a cold email to ${lead.business_name}.
         
         ${senderContext}
         ${leadContext}
         
         Constraints:
-        1. Subject Line: Max 5 words, all lowercase, intriguing (e.g., "question about ${lead.business_name}").
+        1. Subject Line: Max 5 words, lowercase, relevant (e.g., "video editor for ${lead.business_name}", "content idea").
         2. Body: 
            - Max 75 words. 
-           - Structure: Hook (observation about their industry) -> Bridge (how ${services} helps) -> Ask (soft CTA).
-           - Tone: Helpful, not salesy.
+           - Hook: Compliment their current work but suggest an improvement or opportunity (Reels/TikToks).
+           - Bridge: How your editing saves time and increases engagement. Mention you are a solo pro.
+           - Ask: "Open to seeing some samples?"
+           - Tone: Authentic, not "agency-like".
         
         Output Format: JSON object with keys "subject" and "body". Body must be plain text.
         `;
