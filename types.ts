@@ -26,5 +26,6 @@ export interface UserConfig {
 export enum MessageType {
   SMS = 'SMS',
   EMAIL = 'EMAIL',
-  WHATSAPP = 'WHATSAPP'
+  WHATSAPP = 'WHATSAPP',
+  INSTAGRAM = 'INSTAGRAM'
 }

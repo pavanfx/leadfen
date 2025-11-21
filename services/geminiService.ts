@@ -87,6 +87,27 @@ export const generateOutreachMessage = async (
         `;
         break;
 
+      case MessageType.INSTAGRAM:
+        prompt = `
+        Act as a social media savvy video editor.
+        Write a Direct Message (DM) for Instagram to ${lead.business_name}.
+        
+        ${senderContext}
+        ${leadContext}
+        
+        Constraints:
+        1. Casual, friendly, "slide into DMs" vibe.
+        2. Hook: SPECIFICALLY mention their niche/industry (${lead.industry}) and a common pain point or trend in that niche (e.g., if Real Estate, mention "property tours"; if Gym, mention "workout montages").
+        3. Value: "I could make your Reels pop even more" or "Help you reach more ${lead.industry} clients".
+        4. Mention you are a solo editor.
+        5. End with a low-pressure question.
+        6. Max 280 characters.
+        7. NO hashtags. NO "Subject:". Just the message body.
+        
+        Output only the message text.
+        `;
+        break;
+
       case MessageType.EMAIL:
         prompt = `
         Act as a freelance video editor.
